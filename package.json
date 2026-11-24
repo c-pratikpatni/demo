@@ -1,0 +1,13 @@
+{
+  "name": "fincash-demo-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "FinCash demo e-wallet with simulated service failures (demo only).",
+  "scripts": {
+    "dev": "node dev-server.js",
+    "test": "node --test test/"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

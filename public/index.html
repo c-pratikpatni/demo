@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2f2bd8">
+<meta name="robots" content="noindex, nofollow">
+<title>FinCash</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --brand: #2f2bd8; --brand-2: #4f46e5; --brand-deep: #1e1a9e; --mint: #14c39a; --ink: #111633; --ink-2: #4a5170;
+    --muted: #8a90a8; --line: #e7e9f3; --bg: #f4f5fb; --card: #ffffff; --danger: #e5484d; --warn: #f59e0b; --ok: #12a37f;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; }
+  body { font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #dfe3f2; color: var(--ink); display: flex; align-items: center; justify-content: center; }
+  .device { position: relative; width: 400px; height: 820px; max-height: calc(100vh - 32px); background: var(--bg); border-radius: 36px; overflow: hidden; box-shadow: 0 30px 80px rgba(17,22,51,.28), 0 0 0 10px #111633; }
+  @media (max-width: 500px) { body { background: var(--bg); align-items: stretch; } .device { width: 100%; height: 100dvh; max-height: none; border-radius: 0; box-shadow: none; } }
+  .screen { position: absolute; inset: 0; display: none; flex-direction: column; overflow-y: auto; padding-bottom: 88px; }
+  .screen.show { display: flex; }
+  .screen.no-nav { padding-bottom: 24px; }
+  button { font-family: inherit; }
+  .btn { width: 100%; border: 0; border-radius: 16px; padding: 16px; font-size: 16px; font-weight: 700; background: var(--brand); color: #fff; cursor: pointer; }
+  .btn:disabled { opacity: .55; cursor: default; }
+  .btn.ghost { background: transparent; color: var(--brand); }
+  .pad { padding: 0 20px; }
+  .muted { color: var(--muted); }
+  .field { margin-top: 14px; }
+  .field label { display: block; font-size: 12px; font-weight: 600; color: var(--ink-2); margin-bottom: 6px; }
+  .input { width: 100%; padding: 15px 14px; border: 1.5px solid var(--line); border-radius: 14px; font-size: 16px; font-family: inherit; background: #fff; color: var(--ink); outline: none; }
+  .input:focus { border-color: var(--brand); }
+  .prefix { display: flex; align-items: center; border: 1.5px solid var(--line); border-radius: 14px; background: #fff; }
+  .prefix span { padding: 0 4px 0 14px; font-weight: 700; color: var(--ink-2); }
+  .prefix .input { border: 0; padding-left: 6px; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip { padding: 9px 14px; border-radius: 999px; border: 1.5px solid var(--line); background: #fff; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--ink-2); }
+  .chip.sel { border-color: var(--brand); background: #eeedff; color: var(--brand); }
+
+  /* Login */
+  .hero { background: radial-gradient(120% 80% at 10% 0%, #6d63ff 0%, var(--brand) 45%, var(--brand-deep) 100%); color: #fff; padding: 64px 24px 48px; border-radius: 0 0 32px 32px; }
+  .logo { display: flex; align-items: center; gap: 10px; font-size: 26px; font-weight: 800; letter-spacing: -.3px; }
+  .logo i { width: 38px; height: 38px; border-radius: 12px; background: #fff; display: grid; place-items: center; font-style: normal; color: var(--brand); font-weight: 800; }
+  .hero h1 { font-size: 28px; line-height: 1.2; margin: 36px 0 8px; letter-spacing: -.4px; }
+  .hero p { margin: 0; opacity: .8; }
+  .otp-boxes { display: flex; gap: 8px; justify-content: space-between; margin: 18px 0 8px; }
+  .otp-boxes input { width: 48px; height: 58px; text-align: center; font-size: 22px; font-weight: 700; border: 1.5px solid var(--line); border-radius: 14px; font-family: inherit; }
+
+  /* Header + balance */
+  .top { background: linear-gradient(160deg, var(--brand-2), var(--brand) 55%, var(--brand-deep)); color: #fff; padding: 52px 20px 72px; border-radius: 0 0 30px 30px; }
+  .top .row { display: flex; align-items: center; justify-content: space-between; }
+  .avatar { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,.18); display: grid; place-items: center; font-weight: 700; }
+  .hello { font-size: 13px; opacity: .85; } .name { font-weight: 700; font-size: 17px; }
+  .bell { width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,.14); display: grid; place-items: center; }
+  .balance-card { margin: -52px 20px 0; background: #fff; border-radius: 24px; padding: 20px; box-shadow: 0 16px 40px rgba(47,43,216,.16); position: relative; }
+  .balance-card .label { font-size: 12px; color: var(--muted); font-weight: 600; display: flex; align-items: center; gap: 6px; }
+  .balance-card .amt { font-size: 32px; font-weight: 800; letter-spacing: -.6px; margin: 4px 0 14px; }
+  .balance-card .eye { border: 0; background: none; cursor: pointer; color: var(--muted); font-size: 13px; padding: 0; }
+  .balance-card .actions { display: flex; gap: 10px; }
+  .balance-card .actions button { flex: 1; padding: 11px; border-radius: 12px; border: 0; font-weight: 700; cursor: pointer; background: #eeedff; color: var(--brand); }
+  .balance-card .actions button.primary { background: var(--brand); color: #fff; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px 6px; padding: 22px 16px 6px; }
+  .qa { display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; color: var(--ink-2); cursor: pointer; background: none; border: 0; }
+  .qa .ic { width: 54px; height: 54px; border-radius: 18px; display: grid; place-items: center; background: #fff; box-shadow: 0 6px 16px rgba(17,22,51,.06); }
+  .qa svg { width: 26px; height: 26px; }
+  .promo { margin: 16px 20px 0; border-radius: 20px; padding: 18px; color: #fff; background: linear-gradient(120deg, #0fb58f, #14c39a 40%, #2f2bd8 140%); display: flex; justify-content: space-between; align-items: center; }
+  .promo b { font-size: 16px; } .promo small { display: block; opacity: .9; margin-top: 4px; font-size: 12px; }
+  .promo span { background: rgba(255,255,255,.22); border-radius: 999px; padding: 8px 12px; font-weight: 700; font-size: 12px; }
+  .section-title { display: flex; justify-content: space-between; align-items: baseline; padding: 22px 20px 10px; font-weight: 700; }
+  .section-title a { font-size: 13px; color: var(--brand); font-weight: 600; cursor: pointer; }
+  .tx { display: flex; align-items: center; gap: 12px; padding: 12px 20px; background: #fff; border-bottom: 1px solid var(--line); }
+  .tx .ic { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: #f1f2fa; font-size: 18px; }
+  .tx .t1 { font-weight: 600; font-size: 14px; } .tx .t2 { font-size: 12px; color: var(--muted); }
+  .tx .amt { margin-left: auto; font-weight: 700; font-size: 14px; } .tx .amt.neg { color: var(--ink); } .tx .amt.pos { color: var(--ok); }
+  .tx .amt small { display: block; text-align: right; font-weight: 600; font-size: 11px; }
+  .tx-list { margin: 0 20px; border-radius: 18px; overflow: hidden; } .tx-list .tx { padding: 12px 14px; }
+
+  /* Sub pages */
+  .bar { display: flex; align-items: center; gap: 12px; padding: 52px 16px 16px; background: #fff; border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 2; }
+  .bar button { border: 0; background: #f1f2fa; width: 38px; height: 38px; border-radius: 12px; cursor: pointer; font-size: 18px; }
+  .bar h2 { font-size: 18px; margin: 0; }
+  .tabs { display: flex; gap: 6px; background: #eceefa; border-radius: 14px; padding: 4px; margin-top: 16px; }
+  .tabs button { flex: 1; border: 0; padding: 10px; border-radius: 10px; font-weight: 700; background: transparent; color: var(--ink-2); cursor: pointer; }
+  .tabs button.sel { background: #fff; color: var(--brand); box-shadow: 0 2px 6px rgba(17,22,51,.08); }
+  .offers { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+  .offer { background: #fff; border: 1.5px solid var(--line); border-radius: 16px; padding: 14px; cursor: pointer; }
+  .offer.sel { border-color: var(--brand); box-shadow: 0 0 0 3px #e4e2ff; }
+  .offer b { font-size: 20px; } .offer small { display: block; color: var(--muted); font-size: 12px; margin-top: 4px; }
+  .offer em { font-style: normal; font-size: 11px; font-weight: 700; color: var(--brand); }
+  .sticky-cta { position: sticky; bottom: 0; padding: 16px 20px; background: linear-gradient(transparent, var(--bg) 30%); margin-top: auto; }
+  .bank-list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 8px; }
+  .bank { background: #fff; border: 1.5px solid var(--line); border-radius: 14px; padding: 12px 4px; text-align: center; font-size: 12px; font-weight: 700; cursor: pointer; }
+  .bank.sel { border-color: var(--brand); color: var(--brand); }
+  .bank i { display: block; width: 30px; height: 30px; margin: 0 auto 6px; border-radius: 9px; font-style: normal; line-height: 30px; color: #fff; }
+
+  /* Bottom nav */
+  nav.bottom { position: absolute; left: 0; right: 0; bottom: 0; height: 78px; background: #fff; border-top: 1px solid var(--line); display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); z-index: 5; }
+  nav.bottom button { border: 0; background: none; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; color: var(--muted); cursor: pointer; }
+  nav.bottom button.sel { color: var(--brand); }
+  nav.bottom svg { width: 22px; height: 22px; }
+  nav.bottom .qr { width: 58px; height: 58px; border-radius: 20px; background: var(--brand); color: #fff; margin-top: -30px; justify-content: center; box-shadow: 0 10px 24px rgba(47,43,216,.35); }
+  nav.bottom .qr svg { width: 26px; height: 26px; }
+  .hide { display: none !important; }
+
+  /* Sheets, receipt, toast */
+  .overlay { position: absolute; inset: 0; background: rgba(17,22,51,.45); display: none; align-items: flex-end; z-index: 20; }
+  .overlay.show { display: flex; }
+  .sheet { width: 100%; background: #fff; border-radius: 26px 26px 0 0; padding: 26px 22px 28px; animation: up .22s ease-out; }
+  @keyframes up { from { transform: translateY(40px); opacity: 0; } }
+  .sheet .icon { width: 64px; height: 64px; border-radius: 22px; display: grid; place-items: center; margin: 0 auto 14px; font-size: 30px; }
+  .sheet h3 { text-align: center; margin: 0 0 8px; font-size: 20px; } .sheet p { text-align: center; margin: 0 0 20px; color: var(--ink-2); line-height: 1.5; }
+  .sheet .code { text-align: center; font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: var(--muted); margin: -10px 0 18px; }
+  .sheet dl { display: grid; grid-template-columns: auto 1fr; gap: 10px 12px; margin: 0 0 22px; font-size: 14px; } .sheet dt { color: var(--muted); } .sheet dd { margin: 0; text-align: right; font-weight: 600; }
+  .loading { position: absolute; inset: 0; background: rgba(244,245,251,.7); display: none; place-items: center; z-index: 30; }
+  .loading.show { display: grid; }
+  .spinner { width: 44px; height: 44px; border: 4px solid #dcdafc; border-top-color: var(--brand); border-radius: 50%; animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .toast { position: absolute; left: 50%; bottom: 100px; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 10px 16px; border-radius: 12px; font-size: 13px; font-weight: 600; opacity: 0; transition: opacity .2s; z-index: 40; white-space: nowrap; pointer-events: none; }
+  .toast.show { opacity: 1; }
+  .demo-tag { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: 700; letter-spacing: .08em; color: rgba(255,255,255,.75); z-index: 6; pointer-events: none; }
+</style>
+</head>
+<body>
+<div class="device" id="device">
+  <div class="demo-tag">DEMO APP</div>
+
+  <!-- Login -->
+  <section class="screen show no-nav" id="s-login">
+    <div class="hero">
+      <div class="logo"><i>F</i>FinCash</div>
+      <h1>Your money,<br>moving faster.</h1>
+      <p>Log in with your mobile number</p>
+    </div>
+    <div class="pad" style="margin-top:22px">
+      <div class="field"><label>Mobile number</label><div class="prefix"><span>+63</span><input class="input" id="login-number" inputmode="numeric" value="917 555 0142"></div></div>
+      <div class="field"><label>Network</label><div class="chips" data-group="login-net"><span class="chip sel">Globe</span><span class="chip">Smart</span><span class="chip">DITO</span></div></div>
+    </div>
+    <div class="sticky-cta"><button class="btn" id="btn-send-otp">Send one-time PIN</button></div>
+  </section>
+
+  <section class="screen no-nav" id="s-otp">
+    <div class="bar"><button data-go="login">‹</button><h2>Verify your number</h2></div>
+    <div class="pad" style="margin-top:20px">
+      <p class="muted" style="margin:0">Enter the 6-digit PIN we sent to <b id="otp-to" style="color:var(--ink)"></b></p>
+      <div class="otp-boxes" id="otp-boxes"></div>
+      <p class="muted" style="font-size:12px">Demo PIN: 482913</p>
+    </div>
+    <div class="sticky-cta"><button class="btn" id="btn-verify">Verify and log in</button></div>
+  </section>
+
+  <!-- Home -->
+  <section class="screen" id="s-home">
+    <div class="top">
+      <div class="row">
+        <div style="display:flex;gap:12px;align-items:center"><div class="avatar">MS</div><div><div class="hello">Magandang araw,</div><div class="name">Maria Santos</div></div></div>
+        <div class="bell">🔔</div>
+      </div>
+    </div>
+    <div class="balance-card">
+      <div class="label">Available balance <button class="eye" id="eye">Hide</button></div>
+      <div class="amt" id="balance"></div>
+      <div class="actions"><button class="primary" data-toast="Cash In: use any partner outlet or bank">+ Cash In</button><button data-go="history">Transactions</button></div>
+    </div>
+    <div class="grid">
+      <button class="qa" data-go="send"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#2f2bd8" stroke-width="2"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></span>Send</button>
+      <button class="qa" data-go="load"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#14c39a" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg></span>Load</button>
+      <button class="qa" data-go="bank"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M3 21h18M5 10v8M9 10v8M15 10v8M19 10v8M12 3 3 8h18l-9-5z"/></svg></span>Bank Transfer</button>
+      <button class="qa" data-toast="Pay Bills is coming soon"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#e5484d" stroke-width="2"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2V2z"/><path d="M9 7h6M9 11h6"/></svg></span>Pay Bills</button>
+      <button class="qa" data-toast="FinSave is coming soon"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2"><path d="M19 8a7 7 0 1 0-2 9l3 3V8z"/></svg></span>FinSave</button>
+      <button class="qa" data-toast="FinCredit is coming soon"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></span>FinCredit</button>
+      <button class="qa" data-toast="FinInsure is coming soon"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#12a37f" stroke-width="2"><path d="M12 2 4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5l-8-3z"/></svg></span>FinInsure</button>
+      <button class="qa" data-toast="More services coming soon"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#4a5170" stroke-width="2"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg></span>More</button>
+    </div>
+    <div class="promo"><div><b>Get ₱20 back on load</b><small>Buy ₱100 load or more until Sunday</small></div><span data-go="load">Buy now</span></div>
+    <div class="section-title">Recent activity <a data-go="history">See all</a></div>
+    <div class="tx-list" id="recent"></div>
+  </section>
+
+  <!-- Buy Load -->
+  <section class="screen" id="s-load">
+    <div class="bar"><button data-go="home">‹</button><h2>Buy Load</h2></div>
+    <div class="pad">
+      <div class="field"><label>Mobile number</label><div class="prefix"><span>+63</span><input class="input" id="load-number" value="917 555 0142"></div></div>
+      <div class="field"><label>Network</label><div class="chips" data-group="load-net"><span class="chip sel">Globe</span><span class="chip">Smart</span><span class="chip">TNT</span><span class="chip">DITO</span></div></div>
+      <div class="tabs" id="load-tabs"><button class="sel" data-tab="regular">Regular</button><button data-tab="promo">Promos</button></div>
+      <div class="offers" id="offers"></div>
+    </div>
+    <div class="sticky-cta"><button class="btn" id="btn-buy">Buy Load</button></div>
+  </section>
+
+  <!-- Bank Transfer -->
+  <section class="screen" id="s-bank">
+    <div class="bar"><button data-go="home">‹</button><h2>Bank Transfer</h2></div>
+    <div class="pad">
+      <div class="field"><label>Choose bank · InstaPay</label>
+        <div class="bank-list" id="banks">
+          <div class="bank sel" data-bank="BPI"><i style="background:#b3112e">B</i>BPI</div>
+          <div class="bank" data-bank="BDO"><i style="background:#0033a0">B</i>BDO</div>
+          <div class="bank" data-bank="Metrobank"><i style="background:#0060a9">M</i>Metrobank</div>
+          <div class="bank" data-bank="UnionBank"><i style="background:#f58025">U</i>UnionBank</div>
+        </div>
+      </div>
+      <div class="field"><label>Account name</label><input class="input" id="bank-name" value="Juan Dela Cruz"></div>
+      <div class="field"><label>Account number</label><input class="input" id="bank-acct" inputmode="numeric" value="0123 4567 8901"></div>
+      <div class="field"><label>Amount (₱)</label><input class="input" id="bank-amt" inputmode="decimal" value="2,500.00"></div>
+      <p class="muted" style="font-size:12px">Free for the first 5 transfers this month. Arrives in minutes.</p>
+    </div>
+    <div class="sticky-cta"><button class="btn" id="btn-bank">Send to bank</button></div>
+  </section>
+
+  <!-- Send Money -->
+  <section class="screen" id="s-send">
+    <div class="bar"><button data-go="home">‹</button><h2>Send Money</h2></div>
+    <div class="pad">
+      <div class="field"><label>Mobile number or name</label><div class="prefix"><span>+63</span><input class="input" id="send-to" value="927 111 2233"></div></div>
+      <div class="field"><label>Amount (₱)</label><input class="input" id="send-amt" inputmode="decimal" value="500.00"></div>
+      <div class="field"><label>Message (optional)</label><input class="input" id="send-msg" value="Pang-merienda 🍢"></div>
+      <p class="muted" style="font-size:12px">Transfer fee: 1.5% (min ₱5, max ₱250), shown on your receipt.</p>
+    </div>
+    <div class="sticky-cta"><button class="btn" id="btn-send">Send</button></div>
+  </section>
+
+  <!-- History -->
+  <section class="screen" id="s-history">
+    <div class="bar"><button data-go="home">‹</button><h2>Transactions</h2></div>
+    <div id="history"></div>
+  </section>
+
+  <nav class="bottom hide" id="nav">
+    <button data-go="home" class="sel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 11 9-8 9 8v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V11z"/></svg>Home</button>
+    <button data-toast="No new messages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v12H5l-1 4V4z"/></svg>Inbox</button>
+    <button class="qr" data-toast="QR scanning is disabled in the demo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h6v6H3zM15 3h6v6h-6zM3 15h6v6H3zM15 15h2v2h-2zM19 19h2v2h-2zM15 19h2"/></svg></button>
+    <button data-go="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Activity</button>
+    <button data-go="login"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6"/></svg>Log out</button>
+  </nav>
+
+  <div class="overlay" id="overlay"><div class="sheet" id="sheet"></div></div>
+  <div class="loading" id="loading"><div class="spinner"></div></div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+  const $ = (s) => document.querySelector(s);
+  const peso = (n) => '₱' + Number(n).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const num = (s) => Number(String(s).replace(/[^\d.]/g, '')) || 0;
+  const now = () => new Date().toLocaleString('en-PH', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+
+  const seed = { balance: 12480.5, tx: [
+    { icon: '💼', t1: 'Salary credit · ACME Corp', t2: 'Nov 22, 9:02 AM', amt: 18500, pos: true },
+    { icon: '📱', t1: 'Buy Load · Globe 917 555 0142', t2: 'Nov 21, 7:40 PM', amt: 100 },
+    { icon: '🏦', t1: 'Bank Transfer · BPI', t2: 'Nov 20, 1:15 PM', amt: 3000 },
+    { icon: '💸', t1: 'Sent to Ana Reyes', t2: 'Nov 19, 6:22 PM', amt: 750 },
+  ] };
+  let state = (() => { try { return JSON.parse(localStorage.getItem('fincash-demo')) || structuredClone(seed); } catch { return structuredClone(seed); } })();
+  const save = () => { try { localStorage.setItem('fincash-demo', JSON.stringify(state)); } catch {} };
+  let hidden = false;
+
+  function go(name) {
+    document.querySelectorAll('.screen').forEach((s) => s.classList.toggle('show', s.id === 's-' + name));
+    $('#nav').classList.toggle('hide', name === 'login' || name === 'otp');
+    document.querySelectorAll('#nav [data-go]').forEach((b) => b.classList.toggle('sel', b.dataset.go === name));
+    if (name === 'home') renderHome();
+    if (name === 'history') renderHistory();
+    if (name === 'otp') { $('#otp-to').textContent = '+63 ' + $('#login-number').value; renderOtpBoxes(); }
+  }
+  document.addEventListener('click', (e) => {
+    const g = e.target.closest('[data-go]'); if (g) return go(g.dataset.go);
+    const t = e.target.closest('[data-toast]'); if (t) toast(t.dataset.toast);
+  });
+  document.querySelectorAll('.chips').forEach((g) => g.addEventListener('click', (e) => {
+    if (!e.target.classList.contains('chip')) return;
+    g.querySelectorAll('.chip').forEach((c) => c.classList.toggle('sel', c === e.target));
+  }));
+  const picked = (group) => document.querySelector(`[data-group="${group}"] .sel`).textContent;
+
+  function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 2200); }
+  const loading = (on) => $('#loading').classList.toggle('show', on);
+  function sheet(html) { $('#sheet').innerHTML = html; $('#overlay').classList.add('show'); }
+  $('#overlay').addEventListener('click', (e) => { if (e.target.id === 'overlay' || e.target.closest('[data-close]')) $('#overlay').classList.remove('show'); });
+
+  function errorSheet(title, res) {
+    sheet(`<div class="icon" style="background:#fdeced">⚠️</div><h3>${title}</h3><p>${res.message}</p>${res.code ? `<div class="code">Error ${res.code}</div>` : ''}<button class="btn" data-close>Try again later</button>`);
+  }
+  function receipt(title, amount, rows, pending) {
+    const icon = pending ? '<div class="icon" style="background:#fff5e0">⏳</div>' : '<div class="icon" style="background:#e3f8f1">✅</div>';
+    sheet(`${icon}<h3>${title}</h3><p style="font-size:28px;font-weight:800;color:var(--ink);margin-bottom:18px">${peso(amount)}</p>
+      <dl>${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}<dt>Date</dt><dd>${now()}</dd></dl>
+      <button class="btn" data-close>Done</button>`);
+  }
+
+  async function call(action, body) {
+    loading(true);
+    try {
+      const res = await fetch('/api/app/' + action, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      return await res.json();
+    } catch { return { ok: false, message: 'No connection. Please check your internet and try again.', code: 'NETWORK' }; }
+    finally { loading(false); }
+  }
+  function addTx(tx, debit) { state.tx.unshift({ ...tx, t2: now() }); if (debit) state.balance -= tx.amt; save(); }
+
+  // Login + OTP
+  $('#btn-send-otp').onclick = async () => {
+    const r = await call('otp', { number: $('#login-number').value, network: picked('login-net') });
+    if (!r.ok) return errorSheet('PIN not sent', r);
+    go('otp');
+  };
+  function renderOtpBoxes() {
+    const box = $('#otp-boxes'); box.innerHTML = '';
+    for (let i = 0; i < 6; i++) { const inp = document.createElement('input'); inp.maxLength = 1; inp.inputMode = 'numeric'; inp.oninput = () => inp.nextElementSibling && inp.value && inp.nextElementSibling.focus(); box.appendChild(inp); }
+    setTimeout(() => [...'482913'].forEach((d, i) => setTimeout(() => (box.children[i].value = d), 120 * i)), 500);
+  }
+  $('#btn-verify').onclick = () => { go('home'); toast('Welcome back, Maria'); };
+
+  // Home + history
+  function txRow(t) { return `<div class="tx"><div class="ic">${t.icon}</div><div><div class="t1">${t.t1}</div><div class="t2">${t.t2}</div></div><div class="amt ${t.pos ? 'pos' : 'neg'}">${t.pos ? '+' : '−'}${peso(t.amt)}${t.status ? `<small style="color:var(--warn)">${t.status}</small>` : ''}</div></div>`; }
+  function renderHome() { $('#balance').textContent = hidden ? '₱ • • • • •' : peso(state.balance); $('#recent').innerHTML = state.tx.slice(0, 4).map(txRow).join(''); }
+  function renderHistory() { $('#history').innerHTML = state.tx.map(txRow).join(''); }
+  $('#eye').onclick = () => { hidden = !hidden; $('#eye').textContent = hidden ? 'Show' : 'Hide'; renderHome(); };
+
+  // Buy Load
+  const offers = {
+    regular: [[50, 'Regular load'], [100, 'Regular load'], [300, 'Regular load'], [500, 'Regular load']],
+    promo: [[50, 'Surf 50 · 3 days', '2GB + unli video'], [99, 'Unli 99 · 7 days', 'Unli calls & texts'], [149, 'Surf 149 · 7 days', '8GB data'], [299, 'Plus 299 · 30 days', '24GB + unli calls']],
+  };
+  let offerTab = 'regular', offerSel = 1;
+  function renderOffers() {
+    $('#offers').innerHTML = offers[offerTab].map(([amt, name, note], i) => `<div class="offer ${i === offerSel ? 'sel' : ''}" data-i="${i}"><b>₱${amt}</b><small>${name}</small>${note ? `<em>${note}</em>` : ''}</div>`).join('');
+  }
+  $('#offers').onclick = (e) => { const o = e.target.closest('.offer'); if (!o) return; offerSel = Number(o.dataset.i); renderOffers(); };
+  $('#load-tabs').onclick = (e) => { const b = e.target.closest('button'); if (!b) return; offerTab = b.dataset.tab; offerSel = 1; $('#load-tabs').querySelectorAll('button').forEach((x) => x.classList.toggle('sel', x === b)); renderOffers(); };
+  $('#btn-buy').onclick = async () => {
+    const [amt, name] = offers[offerTab][offerSel];
+    const number = $('#load-number').value, network = picked('load-net');
+    const r = await call('buyload', { number, network, amount: amt, promo: name });
+    if (!r.ok) return errorSheet('Buy Load unavailable', r);
+    addTx({ icon: '📱', t1: `Buy Load · ${network} ${number}`, amt }, true);
+    receipt('Load sent', amt, [['To', `+63 ${number}`], ['Network', network], ['Product', name], ['Ref no.', 'FC' + Date.now().toString().slice(-8)]]);
+  };
+
+  // Bank Transfer
+  $('#banks').onclick = (e) => { const b = e.target.closest('.bank'); if (!b) return; $('#banks').querySelectorAll('.bank').forEach((x) => x.classList.toggle('sel', x === b)); };
+  $('#btn-bank').onclick = async () => {
+    const bank = $('#banks .sel').dataset.bank, amt = num($('#bank-amt').value);
+    const r = await call('banktransfer', { bank, amount: $('#bank-amt').value });
+    if (!r.ok) {
+      addTx({ icon: '🏦', t1: `Bank Transfer · ${bank}`, amt, status: 'Pending' }, true);
+      return receipt('Transfer pending', amt, [['To', `${$('#bank-name').value} · ${bank}`], ['Status', '<span style="color:var(--warn)">Pending</span>'], ['Note', 'Taking longer than usual']], true);
+    }
+    addTx({ icon: '🏦', t1: `Bank Transfer · ${bank}`, amt }, true);
+    receipt('Sent to bank', amt, [['To', `${$('#bank-name').value} · ${bank}`], ['Account', $('#bank-acct').value], ['Via', 'InstaPay'], ['Ref no.', r.ref]]);
+  };
+
+  // Send Money
+  $('#btn-send').onclick = async () => {
+    const amt = num($('#send-amt').value), to = $('#send-to').value;
+    const r = await call('sendmoney', { number: to, amount: amt });
+    if (!r.ok) return errorSheet('Send Money unavailable', r);
+    addTx({ icon: '💸', t1: `Sent to +63 ${to}`, amt: r.total }, true);
+    receipt('Money sent', r.total, [['To', `+63 ${to}`], ['Amount', peso(r.amount)], ['Transfer fee', peso(r.fee)], ['Message', $('#send-msg').value || '—'], ['Ref no.', r.ref]]);
+  };
+
+  renderOffers();
+  if (location.hash === '#home') go('home');
+</script>
+</body>
+</html>
