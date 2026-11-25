@@ -119,12 +119,16 @@
   @keyframes spin { to { transform: rotate(360deg); } }
   .toast { position: absolute; left: 50%; bottom: 100px; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 10px 16px; border-radius: 12px; font-size: 13px; font-weight: 600; opacity: 0; transition: opacity .2s; z-index: 40; white-space: nowrap; pointer-events: none; }
   .toast.show { opacity: 1; }
+  .status-banner { position: absolute; top: 34px; left: 12px; right: 12px; z-index: 15; display: none; gap: 10px; align-items: flex-start; background: #fff7e6; color: #7a4b00; border: 1px solid #f5c66b; border-radius: 14px; padding: 10px 12px; font-size: 12.5px; line-height: 1.4; box-shadow: 0 8px 24px rgba(17,22,51,.18); animation: up .25s ease-out; }
+  .status-banner.show { display: flex; } .status-banner b { display: block; color: #5c3800; }
+  .status-banner .x { margin-left: auto; border: 0; background: none; color: #7a4b00; font-size: 16px; cursor: pointer; padding: 0 2px; }
   .demo-tag { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: 700; letter-spacing: .08em; color: rgba(255,255,255,.75); z-index: 6; pointer-events: none; }
 </style>
 </head>
 <body>
 <div class="device" id="device">
   <div class="demo-tag">DEMO APP</div>
+  <div class="status-banner" id="status-banner"><span>⚠️</span><div id="status-text"></div><button class="x" id="status-x" aria-label="Dismiss">×</button></div>
 
   <!-- Login -->
   <section class="screen show no-nav" id="s-login">
@@ -366,6 +370,21 @@
     addTx({ icon: '💸', t1: `Sent to +63 ${to}`, amt: r.total }, true);
     receipt('Money sent', r.total, [['To', `+63 ${to}`], ['Amount', peso(r.amount)], ['Transfer fee', peso(r.fee)], ['Message', $('#send-msg').value || '—'], ['Ref no.', r.ref]]);
   };
+
+  // Service status banner: shown while a service is failing, hidden once it's healthy again.
+  let statusKey = '', dismissed = '';
+  async function refreshStatus() {
+    try {
+      const st = await (await fetch('/api/status', { cache: 'no-store' })).json();
+      statusKey = st.issues.map((i) => i.service).join(',');
+      if (!statusKey) dismissed = '';
+      $('#status-text').innerHTML = st.issues.map((i) => `<b>${i.name}</b>${i.message}`).join('<br>');
+      $('#status-banner').classList.toggle('show', Boolean(statusKey) && statusKey !== dismissed);
+    } catch { /* keep the last state */ }
+  }
+  $('#status-x').onclick = () => { dismissed = statusKey; $('#status-banner').classList.remove('show'); };
+  refreshStatus();
+  setInterval(refreshStatus, 8000);
 
   renderOffers();
   if (location.hash === '#home') go('home');

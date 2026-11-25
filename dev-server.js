@@ -12,6 +12,7 @@ const routes = [
   { re: /^\/api\/health\/([\w-]+)$/, param: 'service', handler: require('./api/health/[service].js') },
   { re: /^\/api\/app\/([\w-]+)$/, param: 'action', handler: require('./api/app/[action].js') },
   { re: /^\/api\/admin\/state$/, handler: require('./api/admin/state.js') },
+  { re: /^\/api\/status$/, handler: require('./api/status.js') },
 ];
 const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'text/javascript', '.svg': 'image/svg+xml', '.png': 'image/png', '.webmanifest': 'application/manifest+json' };
 
