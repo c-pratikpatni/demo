@@ -247,14 +247,20 @@
   const num = (s) => Number(String(s).replace(/[^\d.]/g, '')) || 0;
   const now = () => new Date().toLocaleString('en-PH', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 
-  const seed = { balance: 12480.5, tx: [
+  // Demo wallet: starts at PHP 10M and tops itself up so test transfers never drain it.
+  const DEMO_BALANCE = 10000000, TOP_UP_BELOW = 1000000, STORE = 'fincash-demo-v2';
+  const seed = { balance: DEMO_BALANCE, tx: [
     { icon: '💼', t1: 'Salary credit · ACME Corp', t2: 'Nov 22, 9:02 AM', amt: 18500, pos: true },
     { icon: '📱', t1: 'Buy Load · Globe 917 555 0142', t2: 'Nov 21, 7:40 PM', amt: 100 },
     { icon: '🏦', t1: 'Bank Transfer · BPI', t2: 'Nov 20, 1:15 PM', amt: 3000 },
     { icon: '💸', t1: 'Sent to Ana Reyes', t2: 'Nov 19, 6:22 PM', amt: 750 },
   ] };
-  let state = (() => { try { return JSON.parse(localStorage.getItem('fincash-demo')) || structuredClone(seed); } catch { return structuredClone(seed); } })();
-  const save = () => { try { localStorage.setItem('fincash-demo', JSON.stringify(state)); } catch {} };
+  let state = (() => { try { return JSON.parse(localStorage.getItem(STORE)) || structuredClone(seed); } catch { return structuredClone(seed); } })();
+  const save = () => {
+    if (state.balance < TOP_UP_BELOW) state.balance = DEMO_BALANCE;
+    try { localStorage.setItem(STORE, JSON.stringify(state)); } catch {}
+  };
+  save();
   let hidden = false;
 
   function go(name) {
